@@ -50,6 +50,10 @@ minimally required (example for Ubuntu / artifact evaluation VM):
 sudo apt install texlive-latex-recommended cm-super texlive-science texlive-fonts-extra
 ```
 
+On some systems, a manual installation of `dvipng` may be necessary to generate the plots. You can either install it
+via your system package manager (e.g., `sudo apt install dvipng`) or if you have `tlmgr` installed
+as `sudo tlmgr install dvipng`.
+
 ### Estimated Time and Storage Consumption
 
 Running all experiments on an artifact evaluation VM (16 cores, 64GB RAM) takes 2-3 days. The individual runtimes
