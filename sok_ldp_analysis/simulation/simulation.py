@@ -6,6 +6,7 @@ import pickle
 
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 
 try:
     from mpi4py.futures import MPIPoolExecutor
@@ -15,7 +16,7 @@ except ImportError:
 from sok_ldp_analysis.simulation.data.real import RealDataset
 
 
-def simulation_loop(run_method, tasks, use_mpi=False):
+def simulation_loop(run_method, tasks, use_mpi=False, show_progress=True):
     """
     Run a simulation in parallel and save the results to pickle files.
 
@@ -23,6 +24,7 @@ def simulation_loop(run_method, tasks, use_mpi=False):
         run_method: The method to run in parallel.
         tasks: The list of tasks to run.
         use_mpi: Whether to use MPI or not. If False, multiprocessing is used.
+        show_progress: Whether to show a progress bar or not. Default is True. No effect if use_mpi is True.
     """
 
     if MPIPoolExecutor is None and use_mpi:
@@ -35,17 +37,22 @@ def simulation_loop(run_method, tasks, use_mpi=False):
         if use_mpi:
             mapping = pool.map(run_method, tasks, chunksize=1, unordered=True)
         else:
-            mapping = pool.imap_unordered(run_method, tasks, chunksize=1)
+            if show_progress:
+                mapping = tqdm(pool.imap_unordered(run_method, tasks, chunksize=1), total=len(tasks))
+            else:
+                mapping = pool.imap_unordered(run_method, tasks, chunksize=1)
 
         for output_path, result in mapping:
-            print(f"got results - len {len(result)}")
+            if not show_progress or use_mpi:
+                print(f"got results - len {len(result)}")
             if len(result) == 0:
                 continue
 
             eps = result[0]["eps"]
             filename = output_path / f"{eps}.pkl"
 
-            print(f"Saving results for eps={eps} to {filename}...")
+            if not show_progress or use_mpi:
+                print(f"Saving results for eps={eps} to {filename}...")
 
             if os.path.exists(filename):
                 os.remove(filename)
@@ -54,7 +61,8 @@ def simulation_loop(run_method, tasks, use_mpi=False):
             with open(filename, "wb") as f:
                 pickle.dump(result, f)
 
-            print(f"Saved results for eps={eps} to {filename}")
+            if not show_progress or use_mpi:
+                print(f"Saved results for eps={eps} to {filename}")
 
 
 def _migrate_old_results(output_file, output_path):

@@ -21,8 +21,6 @@ mem_limit = psutil.virtual_memory().total * 0.8 / tasks_per_node
 def run_fo(args):
     store_path, n_range, dataset, eps, method, num_runs, seed = args
 
-    print(f"Running {method.__name__} for {dataset} with eps={eps} and seed={seed}")
-
     data = dataset.data
     domain_size = dataset.domain_size
     rng = np.random.default_rng(seed)

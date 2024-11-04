@@ -27,8 +27,6 @@ mem_limit = psutil.virtual_memory().total * 0.8 / tasks_per_node
 def run_var(args):
     store_path, n_range, dataset, eps, var_method, base_method, split_ratios, num_runs, seed = args
 
-    print(f"Running {var_method.__name__}/{base_method.__name__} for {dataset} with eps={eps} and seed={seed}")
-
     data = dataset.data
     rng = np.random.default_rng(seed)
 
